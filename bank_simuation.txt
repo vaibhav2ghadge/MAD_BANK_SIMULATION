@@ -1,0 +1,39 @@
+Data Structure := Queue for channel avialble cashier 
+
+	type Bank struct {
+		customer int
+		cashier chan int
+	}
+type write interface {
+	Service_Customer(int,chan int)
+}
+type repository interface {
+	write
+}
+Function := 
+
+	Service_Customer(cid int,ch chan int) { 
+		//get Avilabe cashier from Queue if avilabe else it wait to cashier free ie buffered channel are blocked
+		cashier_id := <-ch
+		fmt.Println(time.New(),"cashier ",cashier_id,": customer ",cid,"started")
+		
+		//do the bank work sleep for 3 second
+			time.sleep(time.Second*arg[time_per_customer])
+		//now cashier avaiable for next customer push to queue
+
+		ch<-cashier_id
+		fmt.Println(time.New(),"cashier ",cashier_id,": customer ",cid,"completed")
+	
+	}
+	main() {
+		//create object of bank
+		bank := Bank{customer:arg[0],cashier:make(chan int,arg[1])}
+		//push all available cashier to queue ie they are free
+		for i:= 1 ;i<=cap(cashier);i++ {
+			bank.cashier<-i
+		}
+		for i:=1;i<=bank.customer;i++ {
+			go service_customer(i,bank.cashier)
+		}
+
+}
