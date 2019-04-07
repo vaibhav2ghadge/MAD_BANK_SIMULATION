@@ -12,7 +12,7 @@ type repository interface {
 }
 Function := 
 
-	Service_Customer(cid int,ch chan int) { 
+	Service_Customer(cid int,ch chan int,sync.Waitgroup wg) { 
 		//get Avilabe cashier from Queue if avilabe else it wait to cashier free ie buffered channel are blocked
 		cashier_id := <-ch
 		fmt.Println(time.New(),"cashier ",cashier_id,": customer ",cid,"started")
@@ -23,17 +23,21 @@ Function :=
 
 		ch<-cashier_id
 		fmt.Println(time.New(),"cashier ",cashier_id,": customer ",cid,"completed")
-	
+	wg.Close(1)
 	}
 	main() {
 		//create object of bank
+		wg := sync.WaitGroup
+		
 		bank := Bank{customer:arg[0],cashier:make(chan int,arg[1])}
 		//push all available cashier to queue ie they are free
 		for i:= 1 ;i<=cap(cashier);i++ {
 			bank.cashier<-i
 		}
 		for i:=1;i<=bank.customer;i++ {
-			go service_customer(i,bank.cashier)
+			wg.Add(1)
+			go service_customer(i,bank.cashier,&wg)
 		}
+		wg.Wait()
 
 }
