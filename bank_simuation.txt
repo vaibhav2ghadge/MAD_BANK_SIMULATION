@@ -9,7 +9,7 @@ Data Structure := Queue for channel avialble cashier
 		repository
 }
 type write interface {
-	Service_Customer(int,chan int)
+	Service_Customer(int,Sync.WaitGroup)
 }
 type repository interface {
 	write
@@ -27,7 +27,7 @@ Function :=
 
 		b.Branch.cashier_id<-cashier_id
 		fmt.Println(time.New(),"cashier ",cashier_id,": customer ",cid,"completed")
-	wg.Close(1)
+	wg.Done(1)
 	}
 	main() {
 		//create object of bank
