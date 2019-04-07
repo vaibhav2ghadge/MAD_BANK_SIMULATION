@@ -1,9 +1,13 @@
 Data Structure := Queue for channel avialble cashier 
 
-	type Bank struct {
+	type Bank_Branch struct {
 		customer int
 		cashier chan int
 	}
+	type Bank struct {
+		Branch Bank_Branch
+		repository
+}
 type write interface {
 	Service_Customer(int,chan int)
 }
@@ -12,16 +16,16 @@ type repository interface {
 }
 Function := 
 
-	Service_Customer(cid int,ch chan int,sync.Waitgroup wg) { 
+	func (Bank *b)Service_Customer(cid int,sync.Waitgroup wg) { 
 		//get Avilabe cashier from Queue if avilabe else it wait to cashier free ie buffered channel are blocked
-		cashier_id := <-ch
+		cashier_id := <-b.Branch.cashier
 		fmt.Println(time.New(),"cashier ",cashier_id,": customer ",cid,"started")
 		
 		//do the bank work sleep for 3 second
 			time.sleep(time.Second*arg[time_per_customer])
 		//now cashier avaiable for next customer push to queue
 
-		ch<-cashier_id
+		b.Branch.cashier_id<-cashier_id
 		fmt.Println(time.New(),"cashier ",cashier_id,": customer ",cid,"completed")
 	wg.Close(1)
 	}
@@ -29,14 +33,14 @@ Function :=
 		//create object of bank
 		wg := sync.WaitGroup
 		
-		bank := Bank{customer:arg[0],cashier:make(chan int,arg[1])}
+		bank := Bank{Branch.customer:arg[numCustomers],Branch.cashier:make(chan int,arg[numCashiers])}
 		//push all available cashier to queue ie they are free
 		for i:= 1 ;i<=cap(cashier);i++ {
-			bank.cashier<-i
+			bank.Branch.cashier<-i
 		}
-		for i:=1;i<=bank.customer;i++ {
+		for i:=1;i<=bank.Branch.customer;i++ {
 			wg.Add(1)
-			go service_customer(i,bank.cashier,&wg)
+			go bank.service_customer(i,&wg)
 		}
 		wg.Wait()
 
